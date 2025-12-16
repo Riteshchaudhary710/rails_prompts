@@ -216,7 +216,7 @@ RailsPrompts.prompts_dir = Rails.root.join('test', 'fixtures', 'prompts')
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/riteshchaudhary/rails_prompts
+Bug reports and pull requests are welcome on GitHub at https://github.com/Riteshchaudhary710/rails_prompts
 
 ## License
 
