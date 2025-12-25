@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.0] - 2025-12-25
+
+### Added
+- **Rails Generator**: `rails generate rails_prompts:install` command to automatically set up the gem
+- **Rake Task**: `rake rails_prompts:install` for automated setup
+- **Railtie Integration**: Automatic configuration when using `app/prompts` directory
+- **Automatic Autoload Paths**: `app/prompts` is automatically added to Rails autoload and eager load paths
+- Sample prompt template created during installation
+- Comprehensive documentation for custom directory setup
+
+### Changed
+- **Breaking Change**: When using `app/prompts`, no manual configuration in `application.rb` is required
+- Updated README with detailed setup instructions for both automatic and custom directory configurations
+- Improved gemspec to include generator and rake task files
+
+### Features
+- Zero-configuration setup when using the default `app/prompts` directory
+- Custom directory support with clear instructions for `application.rb` configuration
+- Generator creates `.keep` file and sample template automatically
+- Helpful installation messages guide users through setup
+
 ## [0.0.2] - 2025-12-15
 
 ### Added
