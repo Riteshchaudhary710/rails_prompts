@@ -1,0 +1,96 @@
+name: Ruby Gem
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.2'
+        bundler-cache: true
+    
+    - name: Run tests
+      run: bundle exec rake spec
+    
+    - name: Run RuboCop
+      run: bundle exec rubocop
+      continue-on-error: true
+
+  build:
+    name: Build Gem
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.2'
+        bundler-cache: true
+    
+    - name: Build gem
+      run: gem build *.gemspec
+    
+    - name: Upload gem artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: gem-package
+        path: '*.gem'
+        retention-days: 7
+
+  publish:
+    name: Publish Gem
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.2'
+    
+    - name: Download gem artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: gem-package
+    
+    - name: Setup gem credentials
+      run: |
+        mkdir -p $HOME/.gem
+        cat > $HOME/.gem/credentials << EOF
+        ---
+        :github: Bearer ${{ secrets.GITHUB_TOKEN }}
+        :rubygems_api_key: ${{ secrets.RUBYGEMS_AUTH_TOKEN }}
+        EOF
+        chmod 0600 $HOME/.gem/credentials
+    
+    - name: Publish to GitHub Packages
+      run: |
+        gem push --KEY github --host https://rubygems.pkg.github.com/${{ github.repository_owner }} *.gem
+      continue-on-error: true
+    
+    - name: Publish to RubyGems
+      run: gem push *.gem
